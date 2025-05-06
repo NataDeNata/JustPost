@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>About - Note Taking Website</title>
+        <link rel="stylesheet" href="styles.css">
+        <!-- Add EmailJS script -->
+        <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+        <script>
+            (function() {
+                // Initialize EmailJS with your public key
+                emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual public key
+            })();
+        </script>
+
+		<style>
+		.contact-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #252222; /* dark mode */
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Dark mode styles */
+
+[data-theme="dark"] {
+  background-color: #681fa3;
+  color: #fff;
+}
+
+[data-theme="dark"] .contact-form {
+  background-color: #4a1872;
+  color: #fff;
+}
+
+/* Light mode styles */
+
+[data-theme="light"] {
+  background-color: #fff;
+  color: #333;
+}
+
+[data-theme="light"] .contact-form {
+  background-color: #ff8df5;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Additional styles */
+
+.contact-form input, .contact-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.contact-form input:focus, .contact-form textarea:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.contact-form button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.contact-form button[type="submit"]:hover {
+  background-color: #444;
+}
+		</style>
+    </head>
+    <body>
+        <!--Background Image-->
+        <div class="fixed-background"></div>
+        
+        <header>
+            <!-- Font Settings Toggle Button -->
+            <div class="font-settings-toggle">
+                <button id="fontSettingsBtn" class="settings-btn">
+                    <img src="setting.png" alt="Settings" class="settings-icon">
+                </button>
+            </div>
+            
+            <!-- Hamburger Menu for Mobile -->
+            <div class="hamburger-menu">
+                <div class="hamburger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <!-- Main Navigation -->
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="Website1.html">Home</a></li>
+                    <li><a href="saved_notes.html">Notes</a></li>
+                    <li><a href="About.html">About</a></li>
+                    <li><a href="Contact.html" class="active">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="settings-panel">
+            <div class="settings-header">
+                <h3>Settings</h3>
+                <button id="closeSettingsBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h4>Font Size</h4>
+                    <div class="font-size-controls">
+                        <button id="decreaseFontBtn" class="font-btn">A-</button>
+                        <span id="fontSizeDisplay">Medium</span>
+                        <button id="increaseFontBtn" class="font-btn">A+</button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <h4>Theme</h4>
+                    <div class="theme-toggle">
+                        <span>Dark/Light Mode</span>
+                        <label class="switch">
+                            <input type="checkbox" id="themeToggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="body_content">
+            <main>
+                <h1>Contact</h1>
+                
+                <section class="content-section">
+					<div class="contact-form">
+						<h2>Get in Touch</h2>
+						<form id="contactForm">
+							<label for="name">Name:</label>
+							<input type="text" id="name" name="name" required>
+							<br>
+							<label for="email">Email:</label>
+							<input type="email" id="email" name="email" required>
+							<br>
+							<label for="message">Message:</label>
+							<textarea id="message" name="message" required></textarea>
+							<br>
+							<button type="submit">Send</button>
+						</form>
+					</div>
+                </section>
+            </main>
+        </div>
+
+        <footer>
+            <p>&copy; JustPost</p>
+        </footer>
+
+        <script src="script.js"></script>
+        <script src="mobile-nav.js"></script>
+        <script src="font-settings.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const themeToggle = document.getElementById('themeToggle');
+                const html = document.documentElement;
+                
+                // Check for saved theme preference
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                html.setAttribute('data-theme', savedTheme);
+                themeToggle.checked = savedTheme === 'light';
+                
+                // Theme toggle event listener
+                themeToggle.addEventListener('change', function() {
+                    const newTheme = this.checked ? 'light' : 'dark';
+                    html.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+                
+                // Settings panel toggle
+                const settingsBtn = document.getElementById('fontSettingsBtn');
+                const settingsPanel = document.getElementById('settingsPanel');
+                const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+                
+                settingsBtn.addEventListener('click', function() {
+                    settingsPanel.classList.toggle('show');
+                });
+                
+                closeSettingsBtn.addEventListener('click', function() {
+                    settingsPanel.classList.remove('show');
+                });
+                
+                // Close settings when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+                        settingsPanel.classList.remove('show');
+                    }
+                });
+            });
+
+            // Form submission notification
+            const form = document.getElementsByClassName("contact-form");
+
+            // Add an event listener to the form's submit event
+            form.addEventListener("submit", (e) => {
+                // Prevent the default form submission behavior
+                e.preventDefault();
+
+                // Simulate sending the form data (replace with actual API call or form submission logic)
+                setTimeout(() => {
+                    // Display a notification that the message has been sent successfully
+                    const notification = document.createElement("div");
+                    notification.textContent = "Message sent successfully!";
+                    notification.style.position = "fixed";
+                    notification.style.top = "50%";
+                    notification.style.left = "50%";
+                    notification.style.transform = "translate(-50%, -50%)";
+                    notification.style.backgroundColor = "#4CAF50";
+                    notification.style.color = "#fff";
+                    notification.style.padding = "10px";
+                    notification.style.borderRadius = "5px";
+                    notification.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.2)";
+                    notification.style.zIndex = "1000"; 
+                    document.body.appendChild(notification);
+
+                    // Remove the notification after 3 seconds
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 3000);
+
+                    // Refresh the page after 5 seconds
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 5000);
+                }, 1000);
+            });
+
+            // Contact form submission
+            const contactForm = document.getElementById('contactForm');
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Show loading state
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                submitButton.textContent = 'Sending...';
+                submitButton.disabled = true;
+
+                // Get form data
+                const formData = {
+                    to_email: 'ynatz.ynatz@gmail.com',
+                    from_name: document.getElementById('name').value,
+                    from_email: document.getElementById('email').value,
+                    message: document.getElementById('message').value,
+                    reply_to: document.getElementById('email').value
+                };
+
+                // Send email using EmailJS
+                emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', formData)
+                    .then(function() {
+                        // Show success notification
+                        showNotification('Message sent successfully! We will get back to you soon.', 'success');
+                        
+                        // Reset form
+                        contactForm.reset();
+                        
+                        // Reset button state
+                        submitButton.textContent = originalButtonText;
+                        submitButton.disabled = false;
+
+                        // Wait for 3 seconds before refreshing
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 3000);
+                    })
+                    .catch(function(error) {
+                        // Show error notification
+                        showNotification('Failed to send message. Please try again.', 'error');
+                        
+                        // Reset button state
+                        submitButton.textContent = originalButtonText;
+                        submitButton.disabled = false;
+                        
+                        console.error('EmailJS error:', error);
+                    });
+            });
+
+            // Notification function
+            function showNotification(message, type) {
+                // Remove any existing notifications
+                const existingNotifications = document.querySelectorAll('.notification');
+                existingNotifications.forEach(notification => notification.remove());
+
+                // Create new notification
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                // Add animation class
+                notification.style.animation = 'slideIn 0.3s ease-out';
+
+                // Remove notification after 5 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 5000);
+            }
+        </script>
+    </body>
+</html>
