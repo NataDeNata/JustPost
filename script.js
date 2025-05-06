@@ -140,12 +140,64 @@ createNoteButton.addEventListener('click', function() {
     });
   }
 
-    // Handle image upload
-    imageInput.addEventListener('change', function(e) {
+    // Function to compress image
+    async function compressImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Calculate new dimensions while maintaining aspect ratio
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 600;
+                    
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = Math.round((width * MAX_HEIGHT) / height);
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert to JPEG with 0.7 quality
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    resolve(compressedDataUrl);
+                };
+                img.onerror = reject;
+            };
+            reader.onerror = reject;
+        });
+    }
+
+    // Update the image upload handler
+    imageInput.addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            try {
+                // Check file size before compression
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    showNotification('Image size should be less than 10MB', 'error');
+                    return;
+                }
+
+                const compressedImage = await compressImage(file);
+                
                 const imgWrapper = document.createElement('div');
                 imgWrapper.className = 'image-wrapper';
                 imgWrapper.style.position = 'relative';
@@ -153,7 +205,7 @@ createNoteButton.addEventListener('click', function() {
                 imgWrapper.style.margin = '0 8px 8px 0';
 
                 const img = document.createElement('img');
-                img.src = e.target.result;
+                img.src = compressedImage;
                 img.className = 'note-image';
                 img.style.maxWidth = '120px';
                 img.style.maxHeight = '120px';
@@ -181,7 +233,6 @@ createNoteButton.addEventListener('click', function() {
                 deleteImgBtn.style.lineHeight = '1';
                 deleteImgBtn.style.padding = '0';
                 deleteImgBtn.style.zIndex = '2';
-                deleteImgBtn.setAttribute('data-tooltip', 'Delete image');
 
                 // Show delete button on hover
                 imgWrapper.addEventListener('mouseenter', () => {
@@ -202,27 +253,21 @@ createNoteButton.addEventListener('click', function() {
 
                 // Zoom functionality
                 img.addEventListener('click', function() {
-                    document.getElementById('zoomed-image').src = e.target.result;
+                    document.getElementById('zoomed-image').src = compressedImage;
                     zoomOverlay.style.display = 'flex';
                 });
 
                 imgWrapper.appendChild(img);
                 imgWrapper.appendChild(deleteImgBtn);
                 imageGallery.appendChild(imgWrapper);
+                
+                // Show the gallery if it was hidden
                 imageGallery.style.display = 'flex';
-
-                // Show notification about zoom functionality
-                const notification = document.createElement('div');
-                notification.className = 'notification success';
-                notification.textContent = 'Click on the image to zoom in';
-                noteContainer.appendChild(notification);
-
-                // Remove notification after 3 seconds
-                setTimeout(() => {
-                    notification.remove();
-                }, 3000);
-            };
-            reader.readAsDataURL(file);
+                
+            } catch (error) {
+                console.error('Error processing image:', error);
+                showNotification('Failed to process image. Please try again.', 'error');
+            }
         }
     });
 
